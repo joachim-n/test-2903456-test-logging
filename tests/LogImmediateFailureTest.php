@@ -13,14 +13,30 @@ use Psr\Log\LoggerTrait;
  *
  * In all cases, we want the test to fail due to the logged error. However, this
  * doesn't work properly in cases where the SUT emits the log inside a try/catch
- * block.
+ * block, so we need to check in tearDown().
  */
 class LogImmediateFailureTest extends TestCase implements LoggerInterface {
   use LoggerTrait;
 
   protected $logger;
 
+  /**
+   * Stores all logged messages.
+   *
+   * Flat array. In a real world situation, we'd have these grouped by level.
+   *
+   * @var array
+   */
+  protected $logMessages = [];
+
+  protected bool $logErrorCausedFailure = FALSE;
+
   public function log($level, $message, array $context = array()) {
+    $this->logMessages[] = $message;
+
+    // Keep track of the failure, in case the Assert::fail() is swallowed by a
+    // catch().
+    $this->logErrorCausedFailure = TRUE;
     $this->fail('Log error!');
   }
 
@@ -57,6 +73,7 @@ class LogImmediateFailureTest extends TestCase implements LoggerInterface {
 
     // This will pass the test. But the log error is a problem which is being
     // obscured from the developer, which is bad!
+    // tearDown() will redress this.
     $this->assertEquals('good', $result, 'Bad result from SUT');
   }
 
@@ -69,7 +86,25 @@ class LogImmediateFailureTest extends TestCase implements LoggerInterface {
     // This will fail the test. However, the log error which might be
     // responsible for this return value is being obscured from the developer,
     // which is bad!
+    // tearDown() will redress this.
     $this->assertEquals('good', $result, 'Bad result from SUT');
+  }
+
+  protected function tearDown(): void {
+    // Ensure that if the test produced logs, it actually fails.  This is to
+    // cover the case where the error was logged in the SUT from inside a
+    // try/catch block.
+    // TODO: Give the backtrace of the logged error.
+    if ($this->logErrorCausedFailure) {
+      if ($this->status()->isFailure()) {
+        if (!str_contains($this->status()->message(), 'Log error')) {
+          $this->fail("The test failed but the failure obscured a log error.");
+        }
+      }
+      else {
+        $this->fail("The test passed, but there were errors logged.");
+      }
+    }
   }
 
 }
