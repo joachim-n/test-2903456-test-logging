@@ -5,10 +5,10 @@ namespace Joachim\Test2903456TestLogging;
 /**
  * The SUT.
  *
- * This has methods which either return a good or a bad result.
- *
- * Before returning its result, it logs an error. In some cases, the error
- * is logged inside a try/catch block, and in some cases it isn't.
+ * This has two orthogonal cases:
+ *  - The method either returns a good or a bad result.
+ *  - The method logs an error, either inside a try/catch block, or without
+ *    catching.
  */
 class Sut {
 
@@ -18,6 +18,9 @@ class Sut {
 
   }
 
+  /**
+   * Logs an error without catching, and results in success.
+   */
   function plainLogErrorWithSuccess() {
     // SUT logs an error - we want this to fail the test.
     $this->logger->error('error');
@@ -26,6 +29,9 @@ class Sut {
     return 'good';
    }
 
+  /**
+   * Logs an error without catching, and results in failure.
+   */
   function plainLogErrorWithFailure() {
     // SUT logs an error - we want this to fail the test.
     $this->logger->error('error');
@@ -35,7 +41,10 @@ class Sut {
     return 'bad';
    }
 
-   function caughtErrorWithSuccess() {
+  /**
+   * Logs an error inside a catch, and results in success.
+   */
+  function caughtErrorWithSuccess() {
     try {
       // SUT logs an error - we want this to fail the test.
       $this->logger->error('error');
@@ -48,7 +57,10 @@ class Sut {
     return 'good';
    }
 
-   function caughtErrorWithFailure() {
+  /**
+   * Logs an error inside a catch, and results in failure.
+   */
+  function caughtErrorWithFailure() {
     try {
       // SUT logs an error - we want this to fail the test.
       $this->logger->error('error');
