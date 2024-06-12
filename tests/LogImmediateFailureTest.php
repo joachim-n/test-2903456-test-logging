@@ -29,6 +29,14 @@ class LogImmediateFailureTest extends TestCase implements LoggerInterface {
    */
   protected $logMessages = [];
 
+  /**
+   * Tracks whether a logged error has caused a failure.
+   *
+   * This is necessary for the case where the log error was emitted inside a
+   * try/catch block, which catches the test failure exception.
+   *
+   * @var bool
+   */
   protected bool $logErrorCausedFailure = FALSE;
 
   public function log($level, $message, array $context = array()) {
