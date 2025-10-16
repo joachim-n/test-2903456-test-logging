@@ -52,6 +52,9 @@ class LogImmediateFailureTest extends TestCase implements LoggerInterface {
     $this->logger = new RethrowMultipleLogger(array($this));
   }
 
+  /**
+   * The SUT logs an error but returns success,
+   */
   public function testPlainLogErrorWithSuccess() {
     $sut = new Sut($this->logger);
 
@@ -62,6 +65,9 @@ class LogImmediateFailureTest extends TestCase implements LoggerInterface {
     $this->assertEquals('good', $result, 'Bad result from SUT');
   }
 
+  /**
+   * The SUT logs an error and returns failure.
+   */
   public function testPlainLogErrorWithFailure() {
     $sut = new Sut($this->logger);
 
@@ -73,6 +79,9 @@ class LogImmediateFailureTest extends TestCase implements LoggerInterface {
     $this->assertEquals('good', $result, 'Bad result from SUT');
   }
 
+  /**
+   * The SUT logs an error which is caught, and returns success,
+   */
   public function testCaughtLogErrorWithSuccess() {
     $sut = new Sut($this->logger);
 
@@ -85,6 +94,9 @@ class LogImmediateFailureTest extends TestCase implements LoggerInterface {
     $this->assertEquals('good', $result, 'Bad result from SUT');
   }
 
+  /**
+   * The SUT logs an error which is caught, and returns failure,
+   */
   public function testCaughtErrorWithFailure() {
     $sut = new Sut($this->logger);
 
